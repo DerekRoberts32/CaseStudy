@@ -129,7 +129,7 @@ Metrics are stored as **time-series snapshots**, not as a single overwritten val
 - **Forking is the primary iteration mechanism.** When a researcher wants to experiment with a new approach, they fork an existing signal. This creates a new independent signal with `parent_signal_id` pointing to the original. The original is never modified by a fork.
 - **`parent_signal_id` is a breadcrumb, not a live link.** Changes to a parent signal do not propagate to forks. The fork tree is for lineage tracking and UI visualization only.
 - **Metrics snapshots handle passive performance tracking.** Each time a signal is run, a new `SignalMetrics` row is recorded. This tracks how a stable signal performs over time as market conditions change; it is not a substitute for forking when a researcher wants to try a fundamentally different approach.
-- **Signal `status` is researcher-controlled.** Managers can observe status but do not change it.
+- **Signal `status` is primarily researcher-controlled.** Researchers set their own signals' status (draft, active, deprecated). Managers can also update status for any signal on their team — for example, deprecating a stale signal or activating one after review — but in practice, status changes are typically initiated by the researcher.
 - **Golden signals are read-only.** Any user can fork a golden signal, but no one edits it in place. This protects org-wide baselines from accidental modification.
 
 ### Permissions & Sharing
@@ -155,7 +155,7 @@ Metrics are stored as **time-series snapshots**, not as a single overwritten val
 ## 5. Questions for Users of the System
 
 **Q1 - For researchers:**
-When you have multiple active forks of a signal, how do you decide which branch to pursue? Do you run them in parallel for a fixed evaluation period and compare metrics head-to-head, or do you abandon branches quickly based on early results? When you converge on a winner, what should happen to the abandoned forks — should they be automatically archived after a period of inactivity, or kept visible as historical experiments that might be revisited later? The answer here determines whether we need to invest in cross-lineage metrics comparison tooling (overlaying performance curves across an entire fork tree) and whether we should build automatic stale-fork detection.
+When you fork a signal and end up with several parallel branches, how do you decide which one to keep? Do you typically run all branches for a set period and compare results, or do you cut losing branches early? Understanding this workflow will determine whether we prioritize building cross-lineage metrics comparison (the ability to overlay performance charts across all forks of a signal side-by-side) or invest more in single-signal visualization and automatic cleanup of stale experiments.
 
 **Q2 - For managers and executives:**
 When a signal is shared cross-team or promoted to golden, how much context about its origins should travel with it? Specifically, should the receiving teams be able to see who created it, which team it belongs to, and its full fork history including any ancestor signals that may have been private or team-scoped? Or should a shared or golden signal appear as a clean artifact with no visibility into its history?
@@ -163,8 +163,8 @@ When a signal is shared cross-team or promoted to golden, how much context about
 **Q3 - For managers and executives:**
 How do you define team productivity? Should it be measured by the volume of signals created, the number of signals reaching active or trading status, the performance metrics of those signals, or some combination? Additionally, does active iteration on a signal that has not yet reached trading status count as productive work, or does only a completed and deployed signal contribute to a team's output?
 
-**Q4 - For managers and researchers:**
-When a researcher moves a signal from `draft` to `active`, should that require manager approval, or is the researcher's own judgment sufficient? Similarly, when a manager promotes a signal to golden — making it an org-wide baseline available to all teams — should that require any additional governance such as executive sign-off or a minimum performance threshold gate? Understanding the desired level of oversight at each stage will determine whether we need approval workflows or whether status and visibility changes can remain unilateral actions by the appropriate role.
+**Q4 - For all roles:**
+Should moving a signal from `draft` to `active` require manager approval, or is the researcher's own judgment sufficient? And when a manager promotes a signal to golden — making it an org-wide baseline — should that require executive sign-off or a minimum performance threshold? The answer determines whether we need to build approval workflows into the system or whether status and visibility changes remain single-person decisions by the appropriate role.
 
 **Q5 - For managers and executives:**
 If a researcher's signal is shared cross-team or promoted to golden and subsequently adopted or forked by other teams, should that adoption reflect back on the original researcher and team as a measure of their contribution and productivity? Or should each team's metrics only reflect the signals they originate themselves?
