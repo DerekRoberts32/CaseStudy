@@ -22,3 +22,6 @@ frontend/dist/
 # Misc
 *.pyc
 *.pyo
+
+# Personal notes (not for submission)
+ImplementationDetails.md

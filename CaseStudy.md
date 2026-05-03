@@ -1,7 +1,5 @@
 # Signal Research Platform: Case Study
-**Walleye Capital / Quantic Full Stack QD Case Study**
 
----
 
 ## Table of Contents
 1. [Application Overview](#1-application-overview)
@@ -157,7 +155,7 @@ Metrics are stored as **time-series snapshots**, not as a single overwritten val
 ## 5. Questions for Users of the System
 
 **Q1 - For researchers:**
-When iterating on a signal, what is your general approach? Do you prefer to modify a signal in place and use metric snapshots to track whether your changes improve performance, or do you prefer to fork the signal and treat each fork as a distinct experiment? Understanding this will shape how prominently we surface metrics history vs. fork lineage in the signal detail view.
+When you have multiple active forks of a signal, how do you decide which branch to pursue? Do you run them in parallel for a fixed evaluation period and compare metrics head-to-head, or do you abandon branches quickly based on early results? When you converge on a winner, what should happen to the abandoned forks — should they be automatically archived after a period of inactivity, or kept visible as historical experiments that might be revisited later? The answer here determines whether we need to invest in cross-lineage metrics comparison tooling (overlaying performance curves across an entire fork tree) and whether we should build automatic stale-fork detection.
 
 **Q2 - For managers and executives:**
 When a signal is shared cross-team or promoted to golden, how much context about its origins should travel with it? Specifically, should the receiving teams be able to see who created it, which team it belongs to, and its full fork history including any ancestor signals that may have been private or team-scoped? Or should a shared or golden signal appear as a clean artifact with no visibility into its history?
@@ -165,8 +163,8 @@ When a signal is shared cross-team or promoted to golden, how much context about
 **Q3 - For managers and executives:**
 How do you define team productivity? Should it be measured by the volume of signals created, the number of signals reaching active or trading status, the performance metrics of those signals, or some combination? Additionally, does active iteration on a signal that has not yet reached trading status count as productive work, or does only a completed and deployed signal contribute to a team's output?
 
-**Q4 - For manager-executives specifically:**
-As both a team manager and an org-wide executive, should your view of your own team's signals and productivity be visually distinct from your view of other teams, for example a more detailed or personalized view for your own team, or would you prefer a uniform view across all teams for easier comparison?
+**Q4 - For managers and researchers:**
+When a researcher moves a signal from `draft` to `active`, should that require manager approval, or is the researcher's own judgment sufficient? Similarly, when a manager promotes a signal to golden — making it an org-wide baseline available to all teams — should that require any additional governance such as executive sign-off or a minimum performance threshold gate? Understanding the desired level of oversight at each stage will determine whether we need approval workflows or whether status and visibility changes can remain unilateral actions by the appropriate role.
 
 **Q5 - For managers and executives:**
 If a researcher's signal is shared cross-team or promoted to golden and subsequently adopted or forked by other teams, should that adoption reflect back on the original researcher and team as a measure of their contribution and productivity? Or should each team's metrics only reflect the signals they originate themselves?
@@ -749,9 +747,3 @@ Allow researchers to select 2–3 signals and view their metrics side-by-side:
 - Overlaid line charts for Sharpe ratio, hit rate, etc.
 - Config diff view showing what parameters changed between a signal and its fork
 - Helps researchers quickly determine which iteration branch is most promising
-
-### 9.8 Advanced Search and Tagging
-
-- Free-text search across signal names, descriptions, and configs
-- User-defined tags for categorization (e.g., "momentum", "mean-reversion", "experimental")
-- Saved filters / views for common queries
