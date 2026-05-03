@@ -5,7 +5,7 @@ A full-stack application for quantitative researchers to create, iterate on, and
 ## Project Structure
 
 ```
-├── CaseStudy.md          # Full design document (overview, API spec, data model)
+├── case_study.md          # Full design document (overview, API spec, data model)
 ├── backend/              # FastAPI Python backend
 │   ├── main.py           # App entry point
 │   ├── auth.py           # Permission helpers (mock auth via X-User-Id header)
