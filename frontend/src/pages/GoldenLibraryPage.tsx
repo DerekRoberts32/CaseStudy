@@ -64,7 +64,7 @@ export default function GoldenLibraryPage() {
                   e.stopPropagation()
                   navigate(`/signals/${signal.id}/fork`)
                 }}
-                className="absolute top-4 right-4 btn-primary text-xs"
+                className="absolute bottom-4 right-4 btn-primary text-xs"
               >
                 Fork
               </button>

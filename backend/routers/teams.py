@@ -66,7 +66,7 @@ def compute_productivity(team_id: str) -> TeamProductivity:
 
 @router.get("", response_model=List[TeamListItem])
 def list_teams(current_user: dict = Depends(get_current_user)):
-    if is_exec(current_user):
+    if is_exec(current_user) or is_manager(current_user):
         visible_team_ids = list(TEAMS.keys())
     else:
         visible_team_ids = [current_user["team_id"]] if current_user["team_id"] else []
