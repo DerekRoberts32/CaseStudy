@@ -138,7 +138,8 @@ Metrics are stored as **time-series snapshots**, not as a single overwritten val
 - **Exec-only users are read-only.** They can view all signals across the organization but cannot create, edit, delete, or share signals. This ensures executive oversight without accidental interference in research workflows.
 - **Signals can only be created with private or team visibility.** Promotion to shared or golden is a separate post-creation action that requires manager (or manager-exec) permissions. This prevents researchers from bypassing the review process.
 - **Only managers can promote signal visibility.** Promotion to shared or golden requires the manager or manager-exec role on the signal's owning team. Exec-only users cannot promote signals.
-- **Managers can edit any signal on their team.** In addition to their own signals, managers have write access to all signals owned by their team. This allows them to update metadata or promote visibility without requiring the original researcher to do it.
+- **Managers can edit any signal on their team.** In addition to their own signals, managers have write access to all signals owned by their team. This allows them to update metadata or status without requiring the original researcher to do it. However, only the signal's creator can toggle visibility between `private` and `team` — since setting a signal to `private` hides it from the manager, this decision must remain with the creator.
+- **Teammate researchers cannot edit each other's signals.** A researcher who has team-level visibility into a teammate's signal can view and fork it, but cannot edit it in place. Only the signal's creator and their team manager have write access. This preserves accountability — the creator owns the experiment, and teammates who want to try a different approach should fork rather than modify someone else's work.
 - **Managers can share a signal with multiple teams.** Nothing in the problem restricts sharing to a single target team.
 - **Receiving teams can fork a shared signal.** Read access implies the ability to iterate on it; that is the purpose of sharing.
 - **Revoking a share does not revoke forks.** If a manager revokes a cross-team share, any forks already created by the receiving team remain intact as independent signals owned by that team. The `parent_signal_id` is a historical breadcrumb, not a live permission link.
@@ -181,7 +182,7 @@ The application is implemented as a runnable React + Vite frontend backed by a F
 
 ### 6.2 Signal Detail — Overview
 ![Signal Detail Overview](./screenshots/signal-detail-overview.png)
-*Full detail view for a single signal. Shows metadata (name, description, status, visibility, creator, team) and action buttons for Edit, Fork, and Share (role-dependent).*
+*Full detail view for a single signal. Shows metadata (name, description, status, visibility, creator, team) and action buttons for Edit (creator and manager only), Fork, Share (manager only), and Promote to Golden (manager only).*
 
 ### 6.3 Signal Detail — Metrics History
 ![Signal Detail Metrics](./screenshots/signal-detail-metrics.png)
@@ -252,7 +253,7 @@ Response:
 ### Teams
 
 #### GET /teams
-Returns all teams the current user has permission to see. Researchers and managers see only their own team. Execs and manager-execs see all teams.
+Returns all teams the current user has permission to see. Researchers see only their own team. Managers, execs, and manager-execs see all teams. Managers need visibility into all teams so the cross-team sharing UI can present a dropdown of available target teams.
 
 Accessible by: all roles
 
@@ -408,7 +409,7 @@ Response: array of signal objects (same shape as GET /signals), all with `visibi
 ---
 
 #### GET /signals/:id
-Returns a single signal by id. Returns 403 if the current user does not have permission to view it.
+Returns a single signal by id. Returns 404 if the signal does not exist or the current user does not have permission to view it. Using 404 rather than 403 for hidden resources avoids leaking the existence of signals the user should not know about.
 
 Accessible by: all roles (scoped by permission)
 
@@ -464,7 +465,7 @@ Request body:
 Response: the created signal object (same shape as GET /signals/:id)
 
 #### PATCH /signals/:id
-Updates a signal's metadata, status, or visibility. Only the signal's creator or their team manager can update it. Visibility can only be escalated by a manager (e.g. team to shared, or team to golden). Researchers can update name, description, status, and config. Visibility changes from `team` to `shared` or `golden` require manager or manager_exec role. Exec-only users cannot edit signals.
+Updates a signal's metadata, status, or visibility. Only the signal's creator or their team manager can update it. Researchers can update name, description, status, config, and toggle visibility between `private` and `team`. Managers can update name, description, status, and config for any signal on their team, but cannot change visibility between `private` and `team` — only the creator controls that, since setting a signal to `private` would hide it from the manager. Visibility promotion to `shared` or `golden` requires manager or manager_exec role and is handled through dedicated UI actions (Share and Promote to Golden) rather than the edit form. Exec-only users cannot edit signals.
 
 Accessible by: researcher (own signals), manager (own team signals), manager_exec (own team signals)
 
@@ -569,7 +570,7 @@ Response: the created metrics snapshot object
 #### GET /signals/:id/shares
 Returns all active share records for a signal, showing which teams the signal has been shared with and who granted each share.
 
-Accessible by: manager (own team signals), exec, manager_exec
+Accessible by: manager (own team signals), manager_exec (own team signals)
 
 Response:
 ```json
@@ -648,13 +649,13 @@ Design note: returning 404 rather than 403 for resources that exist but are not 
 5. After running the signal (abstracted), a metrics snapshot is recorded. The metrics chart on the detail page shows the initial data point.
 6. Unsatisfied with performance, the researcher clicks **"Fork"** to create a variant. The fork form opens pre-populated with the parent signal's config.
 7. They adjust parameters, save the fork, run it, and compare metrics between the original and fork using the lineage tree view.
-8. After several iterations, they find a fork with strong metrics and update its status from `draft` to `active`, then change visibility from `private` to `team` so teammates can see it.
+8. After several iterations, they find a fork with strong metrics. They click **"Edit"** on the signal detail page, update its status from `draft` to `active`, and change visibility from `private` to `team` so teammates can see it.
 
 ### Flow 2: Manager Promotes a Signal to Golden
 
 1. Manager opens their **Signal List** and filters by `visibility: team` and `status: active` to find mature signals.
 2. They click into a high-performing signal's **Detail Page** and review the metrics history chart — confirming consistent performance over time.
-3. They click **"Edit"** and change the visibility from `team` to `golden`.
+3. They click **"Promote to Golden"** on the detail page. This action is only visible to managers viewing a signal owned by their team.
 4. The signal now appears in the **Golden Library** for all users org-wide. It becomes read-only — no one can edit it, only fork it.
 
 ### Flow 3: Manager Shares a Signal Cross-Team

@@ -34,8 +34,7 @@ export default function SignalDetailPage() {
     (isManager && signal.team.id === user?.team_id) ||
     isExec
   )
-  const canShare = signal && (isManager || isExec) &&
-    (isExec || signal.team.id === user?.team_id)
+  const canShare = signal && isManager && signal.team.id === user?.team_id
 
   useEffect(() => {
     if (!id) return
@@ -154,6 +153,14 @@ export default function SignalDetailPage() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
+          {canEdit && signal.visibility !== 'golden' && (
+            <button
+              className="btn-ghost"
+              onClick={() => navigate(`/signals/${signal.id}/edit`)}
+            >
+              Edit
+            </button>
+          )}
           <button
             className="btn-ghost"
             onClick={() => navigate(`/signals/${signal.id}/fork`)}
